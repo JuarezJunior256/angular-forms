@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
+
 @Component({
   selector: 'app-template-form',
   templateUrl: './template-form.component.html',
@@ -7,6 +8,13 @@ import { Component, OnInit } from '@angular/core';
 })
 export class TemplateFormComponent implements OnInit {
 
+  usuario: any = {
+    nome: null,
+    email: null
+  };
+  onSubmit(form) {
+    console.log(form);
+  }
   constructor() { }
 
   ngOnInit() {
