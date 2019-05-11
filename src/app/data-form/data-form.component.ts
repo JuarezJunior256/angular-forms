@@ -23,7 +23,16 @@ export class DataFormComponent implements OnInit {
 
     this.form = this.formBuilder.group({
       nome: [null, [Validators.required, Validators.min(3)]],
-      email: [null, [Validators.required, Validators.email]]
+      email: [null, [Validators.required, Validators.email]],
+      endereco: this.formBuilder.group({
+        cep: [null, [Validators.required]],
+        numero: [null, [Validators.required]],
+        complemento: [null],
+        rua: [null, [Validators.required]],
+        bairro: [null, [Validators.required]],
+        cidade: [null, [Validators.required]],
+        estado: [null, [Validators.required]]
+      })
     });
   }
 
@@ -60,5 +69,35 @@ export class DataFormComponent implements OnInit {
       'has-feedback': this.verificarErro(campo)
     };
   }
+
+  //consulta cep
+  consultaCep() {
+    let cep = this.form.get('endereco.cep').value;
+    cep = cep.replace(/\D/g, '');
+
+    if (cep !== '') {
+
+      const validaCep = /^[0-9]{8}$/;
+
+      if (validaCep.test(cep)) {
+        this.http.get(`//viacep.com.br/ws/${cep}/json`)
+          .subscribe(dados => this.populaDadosForm(dados));
+      }
+    }
+  }
+
+  populaDadosForm(dados) {
+    this.form.patchValue({
+       endereco: {
+         rua: dados.logradouro,
+         cep: dados.cep,
+         complemento: dados.complemento,
+         bairro: dados.bairro,
+         cidade: dados.localidade,
+         estado: dados.uf
+       }
+    });
+  }
+
 
 }
