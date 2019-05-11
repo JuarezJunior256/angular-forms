@@ -1,25 +1,40 @@
 <form class="form-horizontal" [formGroup]="form" (ngSubmit)="onSubmit()">
-  <div class="form-group">
+  <div class="form-group" [ngClass]="aplicarCssErro('nome')">
     <div class="col-sm-12">
       <label for="nome">Nome:</label>
     </div>
     <div class="col-sm-12">
       <input type="text" class="form-control" placeholder="Nome"
         formControlName="nome" id="nome" >
+
+        <app-campo-control-erro
+          [mostrarErro]="verificarErro('nome')"
+          msgErro="Nome é obrigatório">
+        </app-campo-control-erro>
     </div>
   </div>
 
-  <div class="form-group">
+  <div class="form-group" [ngClass]="aplicarCssErro('email')">
     <div class="col-sm-12">
       <label for="email">Email:</label>
     </div>
     <div class="col-sm-12">
       <input type="email" class="form-control" placeholder="Email"
         formControlName="email" id="email" >
+      <app-campo-control-erro
+        [mostrarErro]="verificarErro('email')"
+        msgErro="Email é obrigatório">
+      </app-campo-control-erro>
+      <app-campo-control-erro
+        [mostrarErro]="verificarEmailInvalido('email')"
+        msgErro="Email está inválido.">
+      </app-campo-control-erro>
     </div>
   </div>
 
 <button type="submit" class="btn btn-primary">Submit</button>
+<button type="submit" class="btn" (click)="resetar()">Cancelar</button>
+
 
 <app-form-debug [form]="form"></app-form-debug>
 </form>

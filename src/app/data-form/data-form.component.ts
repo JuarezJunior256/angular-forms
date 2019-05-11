@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormControl, FormBuilder } from '@angular/forms';
+import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
 import { log } from 'util';
 import { HttpClient } from '@angular/common/http';
 
@@ -22,8 +22,8 @@ export class DataFormComponent implements OnInit {
     }); */
 
     this.form = this.formBuilder.group({
-      nome: [null],
-      email: [null]
+      nome: [null, [Validators.required, Validators.min(3)]],
+      email: [null, [Validators.required, Validators.email]]
     });
   }
 
@@ -31,7 +31,34 @@ export class DataFormComponent implements OnInit {
     console.log(this.form.value);
 
     this.http.post('enderecoServer/formUser', JSON.stringify(this.form.value))
-       .subscribe(dados => console.log(dados));
+       .subscribe(dados => {
+         console.log(dados);
+
+         // resetando formulário
+         this.resetar();
+       }, (error: any) => alert('erro'));
+  }
+
+  resetar() {
+    this.form.reset();
+  }
+
+  // setença para verificação de campo do formulário
+  verificarErro(campo) {
+     return !this.form.get(campo).valid && this.form.get(campo).touched;
+  }
+  // verifica condição para caso aja erro no email
+  verificarEmailInvalido() {
+    if (this.form.get('email').errors) { // se tiver erro entra no if
+      return  this.form.get('email').errors['email'] && this.form.get('email').touched;
+    }
+  }
+  // aplicar css no campo do fomulário, caso aja erro.
+  aplicarCssErro(campo) {
+    return {
+      'has-error': this.verificarErro(campo),
+      'has-feedback': this.verificarErro(campo)
+    };
   }
 
 }
