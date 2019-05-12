@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
+import { FormControl, FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { log } from 'util';
 import { HttpClient } from '@angular/common/http';
 
@@ -39,13 +39,30 @@ export class DataFormComponent implements OnInit {
   onSubmit() {
     console.log(this.form.value);
 
-    this.http.post('enderecoServer/formUser', JSON.stringify(this.form.value))
-       .subscribe(dados => {
-         console.log(dados);
+    if (this.form.valid) {
+      this.http.post('enderecoServer/formUser', JSON.stringify(this.form.value))
+      .subscribe(dados => {
+        console.log(dados);
 
-         // resetando formulário
-         this.resetar();
-       }, (error: any) => alert('erro'));
+        // resetando formulário
+        this.resetar();
+      }, (error: any) => alert('erro'));
+    } else {
+      this.verificaValidacoesForm(this.form);
+    }
+
+  }
+
+  verificaValidacoesForm(formGroup: FormGroup) {
+    // percorrendo chaves e valores do formulario
+    Object.keys(formGroup.controls).forEach((campo) => {
+      const controle = formGroup.get(campo);
+      // verificando se os campos foram "sujos"
+      controle.markAsDirty();
+      if (controle instanceof FormGroup) { // caso tenha outro formulario aninhado, repete o processo de validação
+        this.verificaValidacoesForm(controle);
+      }
+    });
   }
 
   resetar() {
@@ -54,7 +71,7 @@ export class DataFormComponent implements OnInit {
 
   // setença para verificação de campo do formulário
   verificarErro(campo) {
-     return !this.form.get(campo).valid && this.form.get(campo).touched;
+     return !this.form.get(campo).valid && (this.form.get(campo).touched || this.form.get(campo).dirty);
   }
   // verifica condição para caso aja erro no email
   verificarEmailInvalido() {
@@ -70,7 +87,7 @@ export class DataFormComponent implements OnInit {
     };
   }
 
-  //consulta cep
+  // consulta cep
   consultaCep() {
     let cep = this.form.get('endereco.cep').value;
     cep = cep.replace(/\D/g, '');
