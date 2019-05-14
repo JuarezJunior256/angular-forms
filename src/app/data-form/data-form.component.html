@@ -110,11 +110,13 @@
         <select type="text" class="form-control" id="cargo" formControlName="cargo" [compareWith]="compararCargos">
           <option *ngFor="let cargo of cargos" [ngValue]="cargo">{{cargo.desc}}</option>
         </select>
-         <app-campo-control-erro
-          [mostrarErro]="verificarErro('endereco.estado')"
-          msgErro="Estado é obrigatório">
-         </app-campo-control-erro>
-     </div>
+    </div>
+    <div class="col-md-3" [ngClass]="aplicarCssErro('tecnologia')">
+        <label for="tecnologia" class="control-label">Tecnologia:</label>
+        <select  multiple type="text" class="form-control" id="tecnologia" formControlName="tecnologia">
+          <option *ngFor="let tecnologia of tecnologias" [value]="tecnologia.nome">{{tecnologia.desc}}</option>
+        </select>
+    </div>
 </div>
 
 <button type="submit" class="btn btn-primary" >Submit</button>
