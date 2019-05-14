@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { DropdownService } from '../shared/services/dropdown.service';
 import { EstadoBr } from '../shared/models/estado-br.model';
 import { ConsultaCepService } from '../shared/services/consulta-cep.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-data-form',
@@ -14,7 +15,9 @@ import { ConsultaCepService } from '../shared/services/consulta-cep.service';
 export class DataFormComponent implements OnInit {
 
   form: FormGroup;
-  estados: EstadoBr[];
+  // estados: EstadoBr[];
+  estados$: Observable<EstadoBr[]>;
+  cargos: any[];
 
   constructor(private formBuilder: FormBuilder,
               private http: HttpClient,
@@ -23,11 +26,12 @@ export class DataFormComponent implements OnInit {
 
   ngOnInit() {
 
+   this.estados$ = this.dropdownService.getEstadosBr();
+   this.cargos = this.dropdownService.getCargos();
     /* this.form = new FormGroup({
       nome: new FormControl(),
       email: new FormControl()
     }); */
-    this.getEstados();
     this.form = this.formBuilder.group({
       nome: [null, [Validators.required, Validators.min(3)]],
       email: [null, [Validators.required, Validators.email]],
@@ -39,7 +43,8 @@ export class DataFormComponent implements OnInit {
         bairro: [null, [Validators.required]],
         cidade: [null, [Validators.required]],
         estado: [null, [Validators.required]]
-      })
+      }),
+      cargo: [null]
     });
   }
 
@@ -60,13 +65,6 @@ export class DataFormComponent implements OnInit {
 
   }
 
-  getEstados() {
-    this.dropdownService.getEstadosBr().subscribe(dados => {
-      this.estados = dados,
-      console.log(dados);
-    });
-  }
-
   verificaValidacoesForm(formGroup: FormGroup) {
     // percorrendo chaves e valores do formulario
     Object.keys(formGroup.controls).forEach((campo) => {
@@ -77,6 +75,15 @@ export class DataFormComponent implements OnInit {
         this.verificaValidacoesForm(controle);
       }
     });
+  }
+
+  setarCargo() {
+    const cargo = {nome: 'Dev', nivel: 'Pleno', desc: 'Dev Pl'};
+    this.form.get('cargo').setValue(cargo);
+  }
+
+  compararCargos(obj1, obj2) {
+    return obj1 && obj2 ? (obj1.nome === obj2.nome && obj1.nivel === obj2.nivel) : obj1 && obj2;
   }
 
   resetar() {
