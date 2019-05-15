@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormBuilder, Validators, FormGroup } from '@angular/forms';
+import { FormControl, FormBuilder, Validators, FormGroup, FormArray } from '@angular/forms';
 import { log } from 'util';
 import { HttpClient } from '@angular/common/http';
 import { DropdownService } from '../shared/services/dropdown.service';
@@ -63,7 +63,25 @@ export class DataFormComponent implements OnInit {
   // checkbox FormArray
   buildFramewors() {
     const values = this.frameworks.map(v => new FormControl(false));
-    return this.formBuilder.array(values);
+    return this.formBuilder.array(values, this.requiredMinCheckbox(1));
+  }
+
+  // validação customizada pra checkboxes
+  requiredMinCheckbox(min = 1) {
+    const validator = (formArray: FormArray) => {
+      // const valeus = formArray.controls;
+      /*let totalChecked = 0;
+      for (let i = 0; i < valeus.length; i++) {
+        if (valeus[i].value) {
+          totalChecked += 1;
+        }
+      }*/
+      const totalChecked = formArray.controls
+      .map(v => v.value)
+      .reduce((total, atual) => atual ? total + atual : total, 0);
+      return totalChecked >= min ? null : {required: true };
+    };
+    return validator;
   }
 
   onSubmit() {
@@ -73,9 +91,11 @@ export class DataFormComponent implements OnInit {
 
     valueSubmit = Object.assign(valueSubmit, {
       frameworks: valueSubmit.frameworks
-        .map((v, i) => v ? this.frameworks[i] : null)
-        .filter(v => v !== null)
+        .map((v, i) => v ? this.frameworks[i] : null) // se tiver true, mostra nome do framework
+        .filter(v => v !== null) // filtra apenas os true
     });
+
+    console.log(valueSubmit);
 
     if (this.form.valid) {
       this.http.post('enderecoServer/formUser', JSON.stringify(valueSubmit))
