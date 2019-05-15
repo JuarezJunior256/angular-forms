@@ -21,6 +21,8 @@ export class DataFormComponent implements OnInit {
   tecnologias: any[];
   newsLetterOp: any[];
 
+  frameworks = ['Angular', 'React', 'Vue'];
+
   constructor(private formBuilder: FormBuilder,
               private http: HttpClient,
               private dropdownService: DropdownService,
@@ -28,9 +30,11 @@ export class DataFormComponent implements OnInit {
 
   ngOnInit() {
 
+   // requisição de estados para dropdown
    this.estados$ = this.dropdownService.getEstadosBr();
    this.cargos = this.dropdownService.getCargos();
    this.tecnologias = this.dropdownService.getTecnologias();
+   // requisição de dados para radio buton
    this.newsLetterOp = this.dropdownService.getNewsLetter();
     /* this.form = new FormGroup({
       nome: new FormControl(),
@@ -50,15 +54,31 @@ export class DataFormComponent implements OnInit {
       }),
       cargo: [null],
       tecnologia: [null],
-      newsLetter: [null]
+      newsLetter: [null],
+      termos: [null, Validators.pattern('true')],
+      frameworks: this.buildFramewors()
     });
+  }
+
+  // checkbox FormArray
+  buildFramewors() {
+    const values = this.frameworks.map(v => new FormControl(false));
+    return this.formBuilder.array(values);
   }
 
   onSubmit() {
     console.log(this.form.value);
 
+    let valueSubmit = Object.assign({}, this.form.value);
+
+    valueSubmit = Object.assign(valueSubmit, {
+      frameworks: valueSubmit.frameworks
+        .map((v, i) => v ? this.frameworks[i] : null)
+        .filter(v => v !== null)
+    });
+
     if (this.form.valid) {
-      this.http.post('enderecoServer/formUser', JSON.stringify(this.form.value))
+      this.http.post('enderecoServer/formUser', JSON.stringify(valueSubmit))
       .subscribe(dados => {
         console.log(dados);
 
