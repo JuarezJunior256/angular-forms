@@ -117,6 +117,16 @@
           <option *ngFor="let tecnologia of tecnologias" [value]="tecnologia.nome">{{tecnologia.desc}}</option>
         </select>
     </div>
+    <div class="col-md-3" [ngClass]="aplicarCssErro('newsLetter')">
+        <label for="newsLetter" class="control-label">News Letter:</label>
+        <div id="newsLetter" class="row">
+          <div class="col-sm-4" *ngFor="let item of newsLetterOp">
+              <label class="radio-inline">
+                  <input type="radio" [value]="item.valor" formControlName="newsLetter"> Sim
+              </label>
+          </div>
+        </div>
+    </div>
 </div>
 
 <button type="submit" class="btn btn-primary" >Submit</button>
