@@ -44,7 +44,7 @@ export class DataFormComponent implements OnInit {
       nome: [null, [Validators.required, Validators.min(3)]],
       email: [null, [Validators.required, Validators.email]],
       endereco: this.formBuilder.group({
-        cep: [null, [Validators.required]],
+        cep: [null, [Validators.required, this.cepValidator]],
         numero: [null, [Validators.required]],
         complemento: [null],
         rua: [null, [Validators.required]],
@@ -87,6 +87,7 @@ export class DataFormComponent implements OnInit {
   onSubmit() {
     console.log(this.form.value);
 
+    // criando um novo submit
     let valueSubmit = Object.assign({}, this.form.value);
 
     valueSubmit = Object.assign(valueSubmit, {
@@ -163,6 +164,16 @@ export class DataFormComponent implements OnInit {
       this.cepService.consultaCep(cep)
         .subscribe(dados => this.populaDadosForm(dados));
     }
+   }
+
+   // validando cep
+   cepValidator(control: FormControl) {
+      const cep = control.value;
+      if (cep && cep !== '') {
+        const validacep = /^[0-9]{8}$/;
+        return validacep.test(cep) ? null : { cepInvalido: true };
+      }
+      return null;
    }
 
   populaDadosForm(dados) {
