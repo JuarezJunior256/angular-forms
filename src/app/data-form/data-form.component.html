@@ -16,7 +16,7 @@
 
   <div class="form-group" [ngClass]="aplicarCssErro('email')">
     <div class="col-sm-12">
-      <label for="email">Email:</label>
+      <label for="email">E-mail:</label>
     </div>
     <div class="col-sm-12">
       <input type="email" class="form-control" placeholder="Email"
@@ -28,6 +28,20 @@
       <app-campo-control-erro
         [mostrarErro]="verificarEmailInvalido('email')"
         msgErro="Email está inválido.">
+      </app-campo-control-erro>
+    </div>
+  </div>
+
+  <div class="form-group" [ngClass]="aplicarCssErro('confirmarEmail')">
+    <div class="col-sm-12">
+      <label for="confirmarEmail">Confirmar e-mail:</label>
+    </div>
+    <div class="col-sm-12">
+      <input type="email" class="form-control" placeholder="Email"
+        formControlName="confirmarEmail" id="confirmarEmail" >
+      <app-campo-control-erro
+        [mostrarErro]="form.get('confirmarEmail').hasError('equalsTo')"
+        msgErro="Emais não são iguais">
       </app-campo-control-erro>
     </div>
   </div>

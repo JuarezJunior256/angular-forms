@@ -43,6 +43,8 @@ export class DataFormComponent implements OnInit {
     this.form = this.formBuilder.group({
       nome: [null, [Validators.required, Validators.min(3)]],
       email: [null, [Validators.required, Validators.email]],
+      confirmarEmail: [null, [this.equalsTo('email')]],
+
       endereco: this.formBuilder.group({
         cep: [null, [Validators.required, this.cepValidator]],
         numero: [null, [Validators.required]],
@@ -122,6 +124,32 @@ export class DataFormComponent implements OnInit {
         this.verificaValidacoesForm(controle);
       }
     });
+  }
+
+  // comparar campos iguais
+  equalsTo(otherField: string) {
+    const validator = (formControl: FormControl) => {
+      if (otherField == null) {
+        throw new Error('É necessário informar um campo');
+      }
+
+      if (!formControl.root || !(<FormGroup>formControl.root).controls) {
+        return null;
+      }
+
+      const field = (<FormGroup>formControl.root).get(otherField);
+
+      if (!field) {
+        throw new Error('É necessário informar um campo válido');
+      }
+
+      if (field.value !== formControl.value) {
+        return { equalsTo: true };
+      }
+
+      return null;
+    };
+    return validator;
   }
 
   setarCargo() {
