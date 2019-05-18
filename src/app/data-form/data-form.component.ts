@@ -6,6 +6,8 @@ import { DropdownService } from '../shared/services/dropdown.service';
 import { EstadoBr } from '../shared/models/estado-br.model';
 import { ConsultaCepService } from '../shared/services/consulta-cep.service';
 import { Observable } from 'rxjs';
+import { VerificaEmailService } from './service/verifica-email.service';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-data-form',
@@ -26,7 +28,8 @@ export class DataFormComponent implements OnInit {
   constructor(private formBuilder: FormBuilder,
               private http: HttpClient,
               private dropdownService: DropdownService,
-              private cepService: ConsultaCepService) { }
+              private cepService: ConsultaCepService,
+              private verificaEmailService: VerificaEmailService) { }
 
   ngOnInit() {
 
@@ -36,13 +39,15 @@ export class DataFormComponent implements OnInit {
    this.tecnologias = this.dropdownService.getTecnologias();
    // requisição de dados para radio buton
    this.newsLetterOp = this.dropdownService.getNewsLetter();
-    /* this.form = new FormGroup({
+   // this.verificaEmailService.verificarEmail('').subscribe();
+
+   /* this.form = new FormGroup({
       nome: new FormControl(),
       email: new FormControl()
     }); */
     this.form = this.formBuilder.group({
       nome: [null, [Validators.required, Validators.min(3)]],
-      email: [null, [Validators.required, Validators.email]],
+      email: [null, [Validators.required, Validators.email], this.validarEmail.bind(this)],
       confirmarEmail: [null, [this.equalsTo('email')]],
 
       endereco: this.formBuilder.group({
@@ -112,6 +117,12 @@ export class DataFormComponent implements OnInit {
       this.verificaValidacoesForm(this.form);
     }
 
+  }
+
+  // verificar email assincrono
+  validarEmail(formControl: FormControl) {
+    return this.verificaEmailService.verificarEmail(formControl.value).pipe(
+      map(emailTrue => emailTrue ? { emailInvalido: true} : null));
   }
 
   verificaValidacoesForm(formGroup: FormGroup) {

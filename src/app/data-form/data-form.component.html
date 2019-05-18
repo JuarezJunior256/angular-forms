@@ -29,6 +29,10 @@
         [mostrarErro]="verificarEmailInvalido('email')"
         msgErro="Email está inválido.">
       </app-campo-control-erro>
+      <app-campo-control-erro
+        [mostrarErro]="form.get('email').hasError('emailInvalido')"
+        msgErro="Email já existe.">
+      </app-campo-control-erro>
     </div>
   </div>
 
