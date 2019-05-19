@@ -1,15 +1,8 @@
 <form class="form-horizontal" [formGroup]="form" (ngSubmit)="onSubmit()">
-  <div class="form-group" [ngClass]="aplicarCssErro('nome')">
-    <div class="col-sm-12">
-      <label for="nome">Nome:</label>
-    </div>
-    <div class="col-sm-12">
-      <input type="text" class="form-control" placeholder="Nome"
-        formControlName="nome" id="nome" >
 
-        <app-error-msg [control]="form.get('nome')" label="nome"></app-error-msg>
-    </div>
-  </div>
+  <app-input-field class="col-sm-12" formControlName="nome"
+   [classeCSS]="aplicarCssErro('nome')" id="nome" label="Nome" [control]="form.get('nome')">
+  </app-input-field>
 
   <div class="form-group" [ngClass]="aplicarCssErro('email')">
     <div class="col-sm-12">
@@ -51,8 +44,7 @@
     <div class="form-group" [ngClass]="aplicarCssErro('endereco.cep')">
       <div class="col-md-3">
         <label for="cep" class="control-label">CEP:</label>
-        <input type="text" class="form-control" formControlName="cep" id="cep"
-        (blur)="consultaCep()">
+        <input type="text" class="form-control" formControlName="cep" id="cep">
          <app-campo-control-erro
           [mostrarErro]="verificarErro('endereco.cep')"
           msgErro="Cep é obrigatório">
@@ -172,7 +164,6 @@
 <button type="submit" class="btn btn-primary" >Submit</button>
 <button type="submit" class="btn" (click)="resetar()">Cancelar</button>
 <button type="submit" class="btn" (click)="setarCargo()">Cargo</button>
-
 
 <app-form-debug [form]="form"></app-form-debug>
 </form>

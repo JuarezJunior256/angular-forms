@@ -1,13 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormBuilder, Validators, FormGroup, FormArray } from '@angular/forms';
-import { log } from 'util';
 import { HttpClient } from '@angular/common/http';
 import { DropdownService } from '../shared/services/dropdown.service';
 import { EstadoBr } from '../shared/models/estado-br.model';
 import { ConsultaCepService } from '../shared/services/consulta-cep.service';
-import { Observable } from 'rxjs';
+import { Observable, empty } from 'rxjs';
 import { VerificaEmailService } from './service/verifica-email.service';
-import { map } from 'rxjs/operators';
+import { map, distinctUntilChanged, tap, switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-data-form',
@@ -63,8 +62,17 @@ export class DataFormComponent implements OnInit {
       tecnologia: [null],
       newsLetter: [null],
       termos: [null, Validators.pattern('true')],
-      frameworks: this.buildFramewors()
+      frameworks: this.buildFramewors() // formArray
     });
+
+    this.form.get('endereco.cep').valueChanges
+    .pipe(
+      distinctUntilChanged(),
+      tap(value => console.log(value)),
+      switchMap(status => status === 'VALID' ?
+      this.cepService.consultaCep(this.form.get('endereco.cep').value)
+      : empty())
+    ).subscribe(dados => dados ? this.populaDadosForm(dados) : {});
   }
 
   // checkbox FormArray
@@ -76,13 +84,6 @@ export class DataFormComponent implements OnInit {
   // validação customizada pra checkboxes
   requiredMinCheckbox(min = 1) {
     const validator = (formArray: FormArray) => {
-      // const valeus = formArray.controls;
-      /*let totalChecked = 0;
-      for (let i = 0; i < valeus.length; i++) {
-        if (valeus[i].value) {
-          totalChecked += 1;
-        }
-      }*/
       const totalChecked = formArray.controls
       .map(v => v.value)
       .reduce((total, atual) => atual ? total + atual : total, 0);
@@ -178,7 +179,8 @@ export class DataFormComponent implements OnInit {
 
   // setença para verificação de campo do formulário
   verificarErro(campo) {
-     return !this.form.get(campo).valid && (this.form.get(campo).touched || this.form.get(campo).dirty);
+     return !this.form.get(campo).valid &&
+      (this.form.get(campo).touched || this.form.get(campo).dirty);
   }
   // verifica condição para caso aja erro no email
   verificarEmailInvalido() {

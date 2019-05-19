@@ -1,31 +1,77 @@
-<form [formGroup]="form" (ngSubmit)="onSubmit()">
-  <div class="form-group" >
-    <div class="col-sm-12">
-      <label for="nome">Nome:</label>
-    </div>
-    <div class="col-sm-12">
-      <input type="text" class="form-control" placeholder="Nome"
-        formControlName="nome" id="nome" >
-        <div *ngIf="form.get('nome').touched && !form.get('nome').valid">
-           <p>Preencha Campo</p>
+<div class="row">
+  <div class="tela-form">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="col-sm-6 kk">
+        <div>
+            <mat-radio-group formControlName="pessoaFJ">
+                <mat-radio-button class="example-radio-button" *ngFor="let pess of pessoaFJ" [value]="pess.valor">
+                    {{pess.nome}}
+                 </mat-radio-button>
+            </mat-radio-group>
         </div>
-    </div>
-  </div>
-  <div class="form-group" >
-    <div class="col-sm-12">
-      <label for="nome">E-mail:</label>
-    </div>
-    <div class="col-sm-12">
-      <input type="text" class="form-control" placeholder="fulano@gmail.com"
-        formControlName="email" id="nome" >
-        <div *ngIf="form.get('email').errors?.email">
-           <p>Formato de email invalido</p>
+      <div>
+        <label for="nome"></label>
+      </div>
+      <div>
+        <mat-form-field class="example-full-width">
+          <input matInput placeholder="Nome" formControlName="nome">
+          <mat-error *ngIf="form.get('nome').hasError('required') && verificarErro('nome')">
+            Nome é obrigatório.
+          </mat-error>
+        </mat-form-field>
+      </div>
+      <div>
+          <mat-form-field>
+              <mat-label>Sexo</mat-label>
+              <mat-select formControlName="sexo">
+                <mat-option *ngFor="let gen of generos" [value]="gen.valor">
+                  {{gen.nome}}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="form.get('sexo').hasError('required') && verificarErro('sexo')">
+                Selecione um gênero.
+              </mat-error>
+            </mat-form-field>
+      </div>
+      <div>
+        <label for="cpf"></label>
+      </div>
+      <div>
+          <mat-form-field>
+            <input matInput placeholder="CPF" formControlName="cpf" mask="000.000.000-00">
+            <mat-error *ngIf="form.get('cpf').hasError('required') && verificarErro('cpf')">
+              CPF é obrigatório.
+            </mat-error>
+          </mat-form-field>
+      </div>
+      <div>
+          <label for="telefone"></label>
         </div>
+        <div>
+          <mat-form-field>
+            <input matInput placeholder="Telefone ex: (DD) 99999-9999" formControlName="telefone" mask="(00) 00000-0000">
+            <mat-error *ngIf="form.get('telefone').hasError('required') && verificarErro('telefone')">
+              Telefone para contato é obrigatório.
+            </mat-error>
+          </mat-form-field>
+        </div>
+        <div>
+            <label for="nasc"></label>
+          </div>
+          <div>
+            <mat-form-field>
+              <input matInput placeholder="Nascimento ex: 17/02/1990" formControlName="nasc" mask="d0/M0/0000">
+              <mat-error *ngIf="form.get('nasc').hasError('required') && verificarErro('nasc')">
+                Data de nascimento é obrigatório.
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <button mat-raised-button color="primary" type="submit">Cadastrar</button>
     </div>
+    <div class="col-sm-6 kk2"></div>
+  </form>
   </div>
-
-  <button type="submit" class="btn btn-primary" >Submit</button>
-</form>
+</div>
 
 <p>Detalhes Form</p>
 valores: <br> {{ form.value | json}}
