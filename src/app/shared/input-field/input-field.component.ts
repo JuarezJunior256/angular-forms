@@ -18,7 +18,7 @@ export class InputFieldComponent implements ControlValueAccessor {
   @Input() classeCSS;
   @Input() id: string;
   @Input() label: string;
-  @Input() type: 'text';
+  @Input() type = 'text';
   @Input() control;
   @Input() isReadOnly = false;
 
@@ -43,12 +43,15 @@ export class InputFieldComponent implements ControlValueAccessor {
   writeValue(v: any): void {
     this.value = v;
   }
+
   registerOnChange(fn: any): void {
     this.onChangeCb = fn;
   }
+
   registerOnTouched(fn: any): void {
     this.onTouchedCb = fn;
   }
+
   setDisabledState?(isDisabled: boolean): void {
     this.isReadOnly = isDisabled;
   }

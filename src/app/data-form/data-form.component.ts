@@ -7,17 +7,20 @@ import { ConsultaCepService } from '../shared/services/consulta-cep.service';
 import { Observable, empty } from 'rxjs';
 import { VerificaEmailService } from './service/verifica-email.service';
 import { map, distinctUntilChanged, tap, switchMap } from 'rxjs/operators';
+import { BaseFormComponent } from '../shared/base-form/base-form.component';
+import { Cidade } from '../shared/models/cidade';
 
 @Component({
   selector: 'app-data-form',
   templateUrl: './data-form.component.html',
   styleUrls: ['./data-form.component.css']
 })
-export class DataFormComponent implements OnInit {
+export class DataFormComponent extends BaseFormComponent implements OnInit {
 
   form: FormGroup;
-  // estados: EstadoBr[];
-  estados$: Observable<EstadoBr[]>;
+  estados: EstadoBr[];
+  cidades: Cidade[];
+  // estados$: Observable<EstadoBr[]>;
   cargos: any[];
   tecnologias: any[];
   newsLetterOp: any[];
@@ -28,12 +31,14 @@ export class DataFormComponent implements OnInit {
               private http: HttpClient,
               private dropdownService: DropdownService,
               private cepService: ConsultaCepService,
-              private verificaEmailService: VerificaEmailService) { }
+              private verificaEmailService: VerificaEmailService) {
+                super();
+               }
 
   ngOnInit() {
 
    // requisição de estados para dropdown
-   this.estados$ = this.dropdownService.getEstadosBr();
+   this.dropdownService.getEstadosBr().subscribe(dados => this.estados = dados);
    this.cargos = this.dropdownService.getCargos();
    this.tecnologias = this.dropdownService.getTecnologias();
    // requisição de dados para radio buton
@@ -73,6 +78,13 @@ export class DataFormComponent implements OnInit {
       this.cepService.consultaCep(this.form.get('endereco.cep').value)
       : empty())
     ).subscribe(dados => dados ? this.populaDadosForm(dados) : {});
+
+    this.form.get('endereco.estado').valueChanges.pipe(
+      tap(estado => console.log('Novo Estado', estado)),
+      map(estado => this.estados.filter(e => e.sigla === estado)),
+      map(estados => estados && estados.length > 0 ? estados[0].id : empty()),
+      switchMap((estadoId: number) => this.dropdownService.getCidades(estadoId))
+    ).subscribe(cidades => this.cidades = cidades);
   }
 
   // checkbox FormArray
@@ -92,50 +104,34 @@ export class DataFormComponent implements OnInit {
     return validator;
   }
 
-  onSubmit() {
-    console.log(this.form.value);
-
-    // criando um novo submit
+  submit() {
     let valueSubmit = Object.assign({}, this.form.value);
 
     valueSubmit = Object.assign(valueSubmit, {
       frameworks: valueSubmit.frameworks
-        .map((v, i) => v ? this.frameworks[i] : null) // se tiver true, mostra nome do framework
-        .filter(v => v !== null) // filtra apenas os true
+      .map((v, i) => v ? this.frameworks[i] : null)
+      .filter(v => v !== null)
     });
 
     console.log(valueSubmit);
 
-    if (this.form.valid) {
-      this.http.post('enderecoServer/formUser', JSON.stringify(valueSubmit))
-      .subscribe(dados => {
-        console.log(dados);
-
-        // resetando formulário
-        this.resetar();
-      }, (error: any) => alert('erro'));
-    } else {
-      this.verificaValidacoesForm(this.form);
-    }
-
+    this.http
+        .post('https://httpbin.org/post', JSON.stringify({}))
+        .subscribe(
+          dados => {
+            console.log(dados);
+            // reseta o form
+            // this.formulario.reset();
+            // this.resetar();
+          },
+          (error: any) => alert('erro')
+        );
   }
 
   // verificar email assincrono
   validarEmail(formControl: FormControl) {
     return this.verificaEmailService.verificarEmail(formControl.value).pipe(
       map(emailTrue => emailTrue ? { emailInvalido: true} : null));
-  }
-
-  verificaValidacoesForm(formGroup: FormGroup) {
-    // percorrendo chaves e valores do formulario
-    Object.keys(formGroup.controls).forEach((campo) => {
-      const controle = formGroup.get(campo);
-      // verificando se os campos foram "sujos"
-      controle.markAsDirty();
-      if (controle instanceof FormGroup) { // caso tenha outro formulario aninhado, repete o processo de validação
-        this.verificaValidacoesForm(controle);
-      }
-    });
   }
 
   // comparar campos iguais
@@ -173,27 +169,11 @@ export class DataFormComponent implements OnInit {
     return obj1 && obj2 ? (obj1.nome === obj2.nome && obj1.nivel === obj2.nivel) : obj1 && obj2;
   }
 
-  resetar() {
-    this.form.reset();
-  }
-
-  // setença para verificação de campo do formulário
-  verificarErro(campo) {
-     return !this.form.get(campo).valid &&
-      (this.form.get(campo).touched || this.form.get(campo).dirty);
-  }
   // verifica condição para caso aja erro no email
   verificarEmailInvalido() {
     if (this.form.get('email').errors) { // se tiver erro entra no if
       return  this.form.get('email').errors['email'] && this.form.get('email').touched;
     }
-  }
-  // aplicar css no campo do fomulário, caso aja erro.
-  aplicarCssErro(campo) {
-    return {
-      'has-error': this.verificarErro(campo),
-      'has-feedback': this.verificarErro(campo)
-    };
   }
 
   // consulta cep
